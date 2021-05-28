@@ -4,24 +4,46 @@ using System.Windows;
 
 namespace Test_DragDrop.Models
 {
-    class Element : NotifyPropertyChanged
+    public class Element : NotifyPropertyChanged
     {
-        private string text;
-        public string Text
+        public static double MinWidth{ get => 450; }
+        public static double MinHeight { get => 120; }
+        public static Element Default
         {
-            get => this.text;
-            set
+            get
             {
-                this.text = value;
-                this.OnPropertyChanged("Text");
+                return new Element() { Width = MinWidth, Height = MinHeight, Position = new Point(10, 10), ZIndex = 1};
             }
         }
+
+        private int zIndex;
+        public int ZIndex
+        {
+            get => this.zIndex;
+            set
+            {
+                this.zIndex = value;
+                this.OnPropertyChanged("ZIndex");
+            }
+        }
+
+        private Visibility visible;
+        public Visibility Visible
+        {
+            get => this.visible;
+            private set
+            {
+                this.visible = value;
+                this.OnPropertyChanged("Visible");
+            }
+        }
+
 
         private double width;
         public double Width
         {
             get => this.width;
-            private set
+            set
             {
                 this.width = value;
                 this.OnPropertyChanged("Width");
@@ -32,7 +54,7 @@ namespace Test_DragDrop.Models
         public double Height
         {
             get => this.height;
-            private set
+            set
             {
                 this.height = value;
                 this.OnPropertyChanged("Height");
@@ -54,29 +76,49 @@ namespace Test_DragDrop.Models
             }
         }
 
-        public Element(double width, double height)
-        {
-            this.SetWidth(width);
-            this.SetHeight(height);
-        }
-
         void MoveTo(Point newPosition)
         {
             Position = newPosition;
         }
-
-        public void SetWidth(double value)
-        {
-            this.Width = value;
-        }
-
-        public void SetHeight(double value)
-        {
-            this.Height = value;
-        }
         public RelayCommand<Point> RequestMove { get => new RelayCommand<Point>(point =>
             {
                 this.MoveTo(point);
+            });
+        }
+
+        public virtual void SetVisible(Visibility visibility)
+        {
+            this.Visible = visibility;
+        }
+
+        private RelayCommand<Element> commandRemoveElement;
+        public RelayCommand<Element> CommandRemoveElement
+        {
+            get => this.commandRemoveElement;
+            set
+            {
+                this.commandRemoveElement = value;
+                this.OnPropertyChanged("CommandRemoveElement");
+            }
+        }
+
+        private RelayCommand<Element> commandSelectItem;
+        public RelayCommand<Element> CommandSelectItem
+        {
+            get => this.commandSelectItem;
+            set
+            {
+                this.commandSelectItem = value;
+                this.OnPropertyChanged("CommandSelectItem");
+            }
+        }
+
+        public RelayCommand CommandResetSize
+        {
+            get => new RelayCommand(obj =>
+            {
+                this.Width = MinWidth;
+                this.Height = MinHeight;
             });
         }
     }

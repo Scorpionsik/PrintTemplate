@@ -1,10 +1,10 @@
-﻿<Grid x:Class="Test_DragDrop.Views.DraggableSquare"
+﻿<Border x:Name="scaleBorder" x:Class="Test_DragDrop.Views.ScalableBorder"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Test_DragDrop.Views"
              mc:Ignorable="d" 
-             MouseDown="OnMouseDown" MouseUp="OnMouseUp"
-             Background="Transparent">
-</Grid>
+             >
+
+</Border>

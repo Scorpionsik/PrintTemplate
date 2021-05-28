@@ -5,11 +5,22 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Test_DragDrop.Views"
+        xmlns:utilites="clr-namespace:Test_DragDrop.Utilites"
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         mc:Ignorable="d"
         Title="{Binding Path=Title}" Height="450" Width="800">
     <Grid>
-        <ItemsControl ItemsSource="{Binding Elements}" Width="300" Height="300"
-                      Background="Beige">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <ToolBar>
+            <Button Content="Add" Command="{Binding Path=CommandAddElement}"/>
+            <Separator/>
+            <CheckBox Content="Hide editors" IsChecked="{Binding HideEditors}"/>
+        </ToolBar>
+        <ItemsControl Grid.Row="1" ItemsSource="{Binding Elements}"
+                      Background="{Binding CurrentColor}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <!-- хост списка элементов - канвас, чтобы можно было
@@ -21,30 +32,102 @@
                 <DataTemplate>
                     <!-- сам квадрат вынесем в отдельный UserControl -->
                     <local:DraggableSquare 
+                        MinHeight="{Binding MinHeight}"
+                        MinWidth="{Binding MinWidth}"
                         Width="{Binding Width}" 
                         Height="{Binding Height}"
                         >
-                        <TextBox 
-                            Margin="5" 
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseDown">
+                                <i:InvokeCommandAction Command="{Binding Path=CommandSelectItem}" CommandParameter="{Binding}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                        <Grid>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="10"/>
+                                <RowDefinition Height="42"/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <DockPanel Background="BurlyWood" Visibility="{Binding Visible}" Grid.Row="0" LastChildFill="False">
+                                <Button Command="{Binding Path=CommandRemoveElement}" CommandParameter="{Binding}" DockPanel.Dock="Right">
+                                    <Button.Content>
+                                        <TextBlock Text="X" FontSize="8" Margin="0 -5 0 -5"/>
+                                    </Button.Content>
+                                </Button>
+                                <Button Command="{Binding Path=CommandResetSize}" DockPanel.Dock="Left">
+                                    <Button.Content>
+                                        <TextBlock Text="reset" FontSize="10" Margin="0 -6 0 -5"/>
+                                    </Button.Content>
+                                </Button>
+                            </DockPanel>
+                            <DockPanel Background="BurlyWood" Visibility="{Binding Visible}" Grid.Row="1" LastChildFill="False">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="GotFocus">
+                                        <i:InvokeCommandAction Command="{Binding Path=CommandSelectItem}" CommandParameter="{Binding}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                                <GroupBox Header="Height" DockPanel.Dock="Right">
+                                    <TextBox Text="{Binding Path=Height, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+                                </GroupBox>
+                                <GroupBox Header="Width" DockPanel.Dock="Right">
+                                    <TextBox Text="{Binding Path=Width, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+                                </GroupBox>
+
+                                <GroupBox Header="FontSize" DockPanel.Dock="Left">
+                                    <TextBox Text="{Binding Path=FontSize, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+                                </GroupBox>
+                                <GroupBox Header="FontFamily" Width="140" DockPanel.Dock="Left">
+                                    <ComboBox ItemsSource="{Binding FontFamilyCollection}" SelectedItem="{Binding FontFamily}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding}" FontFamily="{Binding}" Margin="0 -2 0 0"/>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </GroupBox>
+                                <GroupBox Header="TextAlign" Width="75" DockPanel.Dock="Left">
+                                    <ComboBox ItemsSource="{Binding TextAlignmentCollection}" SelectedItem="{Binding TextAlignment}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding}" Margin="0 -4 0 0"/>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </GroupBox>
+                                <CheckBox Content="b" Margin="0 10 0 0" DockPanel.Dock="Left" FontSize="20" FontWeight="Bold" IsChecked="{Binding IsBold}"/>
+                                <CheckBox Content="i" Margin="0 10 0 0" DockPanel.Dock="Left" FontSize="20" FontStyle="Italic" IsChecked="{Binding IsItalic}"/>
+                            </DockPanel>
+                            <TextBox
+                            Background="{Binding CurrentTextBoxColor}"
+                            Grid.Row="2"
                             Text="{Binding Text}"
+                            FontSize="{Binding FontSize}"
+                            FontFamily="{Binding FontFamily}"
+                            FontWeight="{Binding FontWeight}"
+                            FontStyle="{Binding FontStyle}"
+                            TextAlignment="{Binding TextAlignment}"
                             BorderThickness="0"
                             TextWrapping="Wrap"
                             AcceptsReturn="True"
-                            />
+                                
+                            >
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="GotFocus">
+                                        <i:InvokeCommandAction Command="{Binding Path=CommandSelectItem}" CommandParameter="{Binding}" />
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </TextBox>
+                        </Grid>
                     </local:DraggableSquare>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
             <ItemsControl.ItemContainerStyle>
                 <Style>
                     <!-- а это привязка координат контейнера к VM -->
-                    <Setter 
-                        Property="Canvas.Left" 
-                        Value="{Binding Position.X}"
-                        />
-                    <Setter 
-                        Property="Canvas.Top" 
-                        Value="{Binding Position.Y}"
-                        />
+                    <Setter Property="Canvas.Left" Value="{Binding Position.X}"/>
+                    <Setter Property="Canvas.Top" Value="{Binding Position.Y}"/>
+                    <Setter Property="Canvas.ZIndex" Value="{Binding ZIndex}"/>
                 </Style>
             </ItemsControl.ItemContainerStyle>
         </ItemsControl>
