@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Windows;
+using PrintTemplate.Models;
+using PrintTemplate.Views;
 
-namespace Test_DragDrop
+namespace PrintTemplate
 {
     /// <summary>
     /// Логика взаимодействия для App.xaml
@@ -11,7 +14,7 @@ namespace Test_DragDrop
     {
         public static TimeSpan Locality;
 
-        public static string AppTitle = "CoreWPF";
+        public static string AppTitle = "Test Print";
 
         /// Хранит именованный мьютекс, чтобы сохранить владение им до конца пробега программы
         private static Mutex InstanceCheckMutex;
@@ -36,6 +39,9 @@ namespace Test_DragDrop
             }
 
             Locality = DateTimeOffset.Now.Offset;
+
+            MainView window = new MainView(App.AppTitle, new List<List<Element>> { new List<Element> { TextElement.Default } });
+            window.ShowDialog();
         }
 
         public static MessageBoxResult SetMessageBox(string text, MessageBoxButton buttons = MessageBoxButton.OK, MessageBoxImage image = MessageBoxImage.Information, string subtitle = "")

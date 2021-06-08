@@ -2,17 +2,39 @@
 using CoreWPF.Utilites;
 using System.Windows;
 
-namespace Test_DragDrop.Models
+namespace PrintTemplate.Models
 {
     public class Element : NotifyPropertyChanged
     {
-        public static double MinWidth{ get => 450; }
-        public static double MinHeight { get => 120; }
+        protected const double DefaultMinWidth = 450;
+        protected const double DefaultMinHeight = 120;
+
+        private double minWidth;
+        public double MinWidth
+        {
+            get => this.minWidth;
+            protected set
+            {
+                this.minWidth = value;
+                this.OnPropertyChanged("MinWidth");
+            }
+        }
+
+        private double minHeight;
+        public double MinHeight
+        {
+            get => this.minHeight;
+            protected set
+            {
+                this.minHeight = value;
+                this.OnPropertyChanged("MinHeight");
+            }
+        }
         public static Element Default
         {
             get
             {
-                return new Element() { Width = MinWidth, Height = MinHeight, Position = new Point(10, 10), ZIndex = 1};
+                return new Element() { MinWidth = DefaultMinWidth, MinHeight = DefaultMinHeight, Width = DefaultMinWidth, Height = DefaultMinHeight, Position = new Point(10, 10), ZIndex = 1};
             }
         }
 
@@ -76,13 +98,34 @@ namespace Test_DragDrop.Models
             }
         }
 
+        public Element()
+        {
+            this.Visible = Visibility.Visible;
+        }
+
+        public Element(Element element) : this()
+        {
+            this.Position = element.Position;
+            this.Width = element.Width;
+            this.Height = element.Height;
+        }
+
+        public override string ToString()
+        {
+            string result = "=-= " + this.GetType().Name + " =-=";
+            result += "\nPosition: x" + this.Position.X + " y" + this.Position.Y;
+            result += "\nWidth: " + this.Width;
+            result += "\nHeight: " + this.Height;
+            return result;
+        }
+
         void MoveTo(Point newPosition)
         {
             Position = newPosition;
         }
         public RelayCommand<Point> RequestMove { get => new RelayCommand<Point>(point =>
             {
-                this.MoveTo(point);
+                if(this.Visible == Visibility.Visible) this.MoveTo(point);
             });
         }
 

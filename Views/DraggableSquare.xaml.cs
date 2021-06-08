@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Test_DragDrop.Views
+namespace PrintTemplate.Views
 {
     /// <summary>
     /// Логика взаимодействия для DraggableSquare.xaml

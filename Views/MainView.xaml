@@ -1,36 +1,149 @@
-﻿<window:WindowExt x:Class="Test_DragDrop.Views.MainView"
+﻿<window:WindowExt x:Class="PrintTemplate.Views.MainView"
+                  WindowState="Maximized"
         xmlns:window="clr-namespace:CoreWPF.Windows;assembly=CoreWPF"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Test_DragDrop.Views"
-        xmlns:utilites="clr-namespace:Test_DragDrop.Utilites"
+        xmlns:local="clr-namespace:PrintTemplate.Views"
+        xmlns:models="clr-namespace:PrintTemplate.Models"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         mc:Ignorable="d"
+                  Background="DarkGray"
         Title="{Binding Path=Title}" Height="450" Width="800">
+    <window:WindowExt.Resources>
+        <SolidColorBrush x:Key="PanelColor" Color="BurlyWood"/>
+    </window:WindowExt.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="35"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <ToolBar>
-            <Button Content="Add" Command="{Binding Path=CommandAddElement}"/>
+        <ToolBar Header="Добавить: ">
+            <Button Content="Текст" Command="{Binding Path=CommandAddTextElement}"/>
+            <Button Content="Рамку" Command="{Binding Path=CommandAddBorderElement}"/>
             <Separator/>
-            <CheckBox Content="Hide editors" IsChecked="{Binding HideEditors}"/>
+            <Button Content="&lt;" Command="{Binding CommandTurnThePage}" CommandParameter="left"/>
+            <TextBox Text="{Binding SelectedPage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <StackPanel Orientation="Horizontal" Margin="0 7 0 0">
+                <TextBlock Text=" / "/>
+                <TextBlock Text="{Binding Pages.Count}"/>
+            </StackPanel>
+            <Button Content=">" Command="{Binding CommandTurnThePage}" CommandParameter="right"/>
+            <Separator/>
+            <Button Content="Добавить страницу" Command="{Binding CommandAddPage}"/>
+            <Button Content="Удалить эту страницу" Command="{Binding CommandRemovePage}"/>
+            <Separator/>
+            <CheckBox Content="Предпросмотр" IsChecked="{Binding EditorVisibility}"/>
+            <Separator/>
+            <Button Content="Печать!" IsEnabled="{Binding PrintButtonEnable}" Command="{Binding CommandStartPrint}" CommandParameter="{Binding TitlePrint}"/>
+            <Separator/>
+            <TextBox Width="250px" Text="{Binding TitlePrint, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <Separator/>
+            <TextBox Text="{Binding PercentScale, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBlock Text="%" Margin="0 7 0 0"/>
+            <Separator/>
+            <Button Content="ToString()" Command="{Binding CommandToStringElements}"/>
         </ToolBar>
-        <ItemsControl Grid.Row="1" ItemsSource="{Binding Elements}"
-                      Background="{Binding CurrentColor}">
+        <ScrollViewer x:Name="ParentForCanvas" HorizontalScrollBarVisibility="Visible" Grid.Row="1" >
+        <ItemsControl 
+            x:Name="CurrentCanvas" 
+            
+            BorderBrush="{StaticResource PanelColor}" 
+            ItemsSource="{Binding Elements}" 
+            Background="{Binding CurrentColor}"
+
+            >
+            <ItemsControl.Resources>
+                <!--TextElement-->
+                <DataTemplate DataType="{x:Type models:TextElement}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="42"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <DockPanel Background="{StaticResource PanelColor}" Visibility="{Binding Visible}" Grid.Row="0" LastChildFill="False">
+                            <GroupBox Header="Height" DockPanel.Dock="Right">
+                                <TextBox Text="{Binding Path=Height, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+                            </GroupBox>
+                            <GroupBox Header="Width" DockPanel.Dock="Right">
+                                <TextBox Text="{Binding Path=Width, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+                            </GroupBox>
+
+                            <GroupBox Header="FontSize" DockPanel.Dock="Left">
+                                <TextBox Text="{Binding Path=FontSize, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+                            </GroupBox>
+                            <GroupBox Header="FontFamily" Width="140" DockPanel.Dock="Left">
+                                <ComboBox ItemsSource="{Binding FontFamilyCollection}" SelectedItem="{Binding FontFamily}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding}" FontFamily="{Binding}" Margin="0 -2 0 0"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </GroupBox>
+                            <GroupBox Header="TextAlign" Width="75" DockPanel.Dock="Left">
+                                <ComboBox ItemsSource="{Binding TextAlignmentCollection}" SelectedItem="{Binding TextAlignment}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding}" Margin="0 -4 0 0"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </GroupBox>
+                            <CheckBox Content="b" Margin="0 10 0 0" DockPanel.Dock="Left" FontSize="20" FontWeight="Bold" IsChecked="{Binding IsBold}"/>
+                            <CheckBox Content="i" Margin="0 10 0 0" DockPanel.Dock="Left" FontSize="20" FontStyle="Italic" IsChecked="{Binding IsItalic}"/>
+                        </DockPanel>
+                        <TextBox
+                            Background="{Binding CurrentTextBoxColor}"
+                            Grid.Row="1"
+                            Text="{Binding Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            FontSize="{Binding FontSize}"
+                            FontFamily="{Binding FontFamily}"
+                            FontWeight="{Binding FontWeight}"
+                            FontStyle="{Binding FontStyle}"
+                            TextAlignment="{Binding TextAlignment}"
+                            BorderThickness="0"
+                            TextWrapping="Wrap"
+                            AcceptsReturn="True"
+                                
+                            >
+                           
+                        </TextBox>
+                    </Grid>
+                </DataTemplate>
+                <!--end TextElement-->
+
+                <!--BorderElement-->
+                <DataTemplate DataType="{x:Type models:BorderElement}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="42"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <DockPanel Background="{StaticResource PanelColor}" Visibility="{Binding Visible}" Grid.Row="0" LastChildFill="False">
+                            <GroupBox Header="Height" DockPanel.Dock="Right">
+                                <TextBox Text="{Binding Path=Height, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+                            </GroupBox>
+                            <GroupBox Header="Width" DockPanel.Dock="Right">
+                                <TextBox Text="{Binding Path=Width, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+                            </GroupBox>
+                            <GroupBox Header="Border" DockPanel.Dock="Left">
+                                <TextBox Text="{Binding Path=BorderThickness, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
+                            </GroupBox>
+                        </DockPanel>
+                        <Border Grid.Row="1" BorderThickness="{Binding BorderThickness}" BorderBrush="Black"/>
+                    </Grid>
+                </DataTemplate>
+                <!--end BorderElement-->
+            </ItemsControl.Resources>
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <!-- хост списка элементов - канвас, чтобы можно было
-                         произвольно устанавливать координаты -->
                     <Canvas IsItemsHost="True"/>
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <!-- сам квадрат вынесем в отдельный UserControl -->
                     <local:DraggableSquare 
                         MinHeight="{Binding MinHeight}"
                         MinWidth="{Binding MinWidth}"
@@ -46,10 +159,10 @@
 
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="10"/>
-                                <RowDefinition Height="42"/>
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
-                            <DockPanel Background="BurlyWood" Visibility="{Binding Visible}" Grid.Row="0" LastChildFill="False">
+
+                            <DockPanel Background="{StaticResource PanelColor}" Visibility="{Binding Visible}" Grid.Row="0" LastChildFill="False">
                                 <Button Command="{Binding Path=CommandRemoveElement}" CommandParameter="{Binding}" DockPanel.Dock="Right">
                                     <Button.Content>
                                         <TextBlock Text="X" FontSize="8" Margin="0 -5 0 -5"/>
@@ -61,63 +174,14 @@
                                     </Button.Content>
                                 </Button>
                             </DockPanel>
-                            <DockPanel Background="BurlyWood" Visibility="{Binding Visible}" Grid.Row="1" LastChildFill="False">
+                            <Grid Grid.Row="1">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="GotFocus">
                                         <i:InvokeCommandAction Command="{Binding Path=CommandSelectItem}" CommandParameter="{Binding}" />
                                     </i:EventTrigger>
                                 </i:Interaction.Triggers>
-                                <GroupBox Header="Height" DockPanel.Dock="Right">
-                                    <TextBox Text="{Binding Path=Height, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
-                                </GroupBox>
-                                <GroupBox Header="Width" DockPanel.Dock="Right">
-                                    <TextBox Text="{Binding Path=Width, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
-                                </GroupBox>
-
-                                <GroupBox Header="FontSize" DockPanel.Dock="Left">
-                                    <TextBox Text="{Binding Path=FontSize, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" />
-                                </GroupBox>
-                                <GroupBox Header="FontFamily" Width="140" DockPanel.Dock="Left">
-                                    <ComboBox ItemsSource="{Binding FontFamilyCollection}" SelectedItem="{Binding FontFamily}">
-                                        <ComboBox.ItemTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Text="{Binding}" FontFamily="{Binding}" Margin="0 -2 0 0"/>
-                                            </DataTemplate>
-                                        </ComboBox.ItemTemplate>
-                                    </ComboBox>
-                                </GroupBox>
-                                <GroupBox Header="TextAlign" Width="75" DockPanel.Dock="Left">
-                                    <ComboBox ItemsSource="{Binding TextAlignmentCollection}" SelectedItem="{Binding TextAlignment}">
-                                        <ComboBox.ItemTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Text="{Binding}" Margin="0 -4 0 0"/>
-                                            </DataTemplate>
-                                        </ComboBox.ItemTemplate>
-                                    </ComboBox>
-                                </GroupBox>
-                                <CheckBox Content="b" Margin="0 10 0 0" DockPanel.Dock="Left" FontSize="20" FontWeight="Bold" IsChecked="{Binding IsBold}"/>
-                                <CheckBox Content="i" Margin="0 10 0 0" DockPanel.Dock="Left" FontSize="20" FontStyle="Italic" IsChecked="{Binding IsItalic}"/>
-                            </DockPanel>
-                            <TextBox
-                            Background="{Binding CurrentTextBoxColor}"
-                            Grid.Row="2"
-                            Text="{Binding Text}"
-                            FontSize="{Binding FontSize}"
-                            FontFamily="{Binding FontFamily}"
-                            FontWeight="{Binding FontWeight}"
-                            FontStyle="{Binding FontStyle}"
-                            TextAlignment="{Binding TextAlignment}"
-                            BorderThickness="0"
-                            TextWrapping="Wrap"
-                            AcceptsReturn="True"
-                                
-                            >
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="GotFocus">
-                                        <i:InvokeCommandAction Command="{Binding Path=CommandSelectItem}" CommandParameter="{Binding}" />
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
-                            </TextBox>
+                                <ContentControl Content="{Binding}"/>
+                            </Grid>
                         </Grid>
                     </local:DraggableSquare>
                 </DataTemplate>
@@ -131,5 +195,6 @@
                 </Style>
             </ItemsControl.ItemContainerStyle>
         </ItemsControl>
+        </ScrollViewer>
     </Grid>
 </window:WindowExt>

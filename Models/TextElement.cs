@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace Test_DragDrop.Models
+namespace PrintTemplate.Models
 {
     public class TextElement : Element
     {
@@ -118,8 +118,11 @@ namespace Test_DragDrop.Models
 
         public TextElement() : base()
         {
+            this.ZIndex = 2;
             this.IsBold = false;
             this.IsItalic = false;
+            this.MinWidth = DefaultMinWidth;
+            this.MinHeight = DefaultMinHeight;
             this.TextAlignment = TextAlignmentCollection.First;
         }
 
@@ -146,6 +149,18 @@ namespace Test_DragDrop.Models
         {
             base.SetVisible(visibility);
             this.OnPropertyChanged("CurrentTextBoxColor");
+        }
+
+        public override string ToString()
+        {
+            string result = base.ToString();
+            result += "\nText: " + this.Text;
+            result += "\nFontSize: " + this.FontSize;
+            result += "\nFontFamily: " + this.FontFamily;
+            result += "\nTextAlignment: " + this.TextAlignment;
+            result += "\nIsBold: " + this.IsBold;
+            result += "\nIsItalic: " + this.IsItalic;
+            return result;
         }
     }
 }
